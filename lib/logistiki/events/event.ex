@@ -129,7 +129,7 @@ defmodule Logistiki.Event do
             product_code: event.product_code,
             jurisdiction: event.jurisdiction,
             entity_type: event.entity_type,
-            has_accounting_impact: Map.get(event, :has_accounting_impact, true),
+            has_accounting_impact: Logistiki.Event.accounting_impact(event),
             metadata: event.metadata
           })
           |> merge_extra_fields(event)
@@ -152,6 +152,12 @@ defmodule Logistiki.Event do
       end
     end
   end
+
+  @doc false
+  # Most events do not declare `has_accounting_impact`. A direct
+  # `Map.get/3` in the generated `normalize/1` would read a key that the
+  # struct type lacks, and Elixir 1.20 warns on it.
+  def accounting_impact(event), do: Map.get(event, :has_accounting_impact, true)
 
   @doc """
   Returns the string event type used by the knowledge layer.
